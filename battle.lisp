@@ -85,3 +85,70 @@
                  (pick-monster))
           m)))))
 
+(defun init-monsters ()
+  (setf *monsters*
+        (map 'vector
+             (lambda (x)
+               (funcall (nth (random (length *monster-builders*))
+                             *monster-builders*)))
+             (make-array *monster-num*))))
+
+(defun monster-dead (m)
+  (<= (monster-health m) 0))
+
+(defun monsters-dead ()
+  (every #'monster-dead *monsters*))
+
+(defun show-monsters ()
+  (fresh-line)
+  (princ "Your foes:")
+  (let ((x 0))
+    (map 'list
+         (lambda (m)
+           (fresh-line)
+           (princ "   ")
+           (princ (incf x))
+           (princ ". ")
+           (if (monster-dead m)
+             (princ "**dead**")
+             (progn (princ "(Health=")
+                    (princ (monster-health m))
+                    (princ ") ")
+                    (monster-show m))))
+         *monsters*)))
+
+(defstruct monster (health (randval 10)))
+
+(defmethod monster-hit (m x)
+  (decf (monster-health m) x)
+  (if (monster-dead m)
+    (progn (princ "You killed the ")
+           (princ (type-of m))
+           (princ "! "))
+    (progn (princ "You hit the ")
+           (princ (type-of m))
+           (princ ", knocking off ")
+           (princ x)
+           (princ " health points! "))))
+
+(defmethod monster-show (m)
+  (princ "A fierce ")
+  (princ (type-of m)))
+
+(defmethod monster-attack (m))
+
+(defstruct (orc (:include monster)) (club-level (randval 8)))
+
+(push #'make-orc *monster-builders*)
+
+(defmethod monster-show ((m orc))
+  (princ "A wicked orc with a level ")
+  (princ (orc-club-level m))
+  (princ " club"))
+
+(defmethod monster-attack ((m orc))
+  (let ((x (randval (orc-club-level m))))
+    (princ "An orc swings his club at you and knocks off ")
+    (princ x)
+    (princ " of your health points. ")
+    (decf *player-health* x)))
