@@ -41,11 +41,11 @@
 
 (defun dot->png (fname thunk)
   (with-open-file (*standard-output*
-                    (concatenate 'string fname ".dot")
+                    (concatenate 'string "dots/" fname ".dot")
                     :direction :output
                     :if-exists :supersede)
     (funcall thunk))
-  (ext:shell (concatenate 'string "dot -Tpng -O " fname ".dot")))
+  (ext:shell (concatenate 'string "dot -Tpng -O " "dots/" fname ".dot")))
 
 (defun graph->png (fname nodes edges)
   (dot->png fname
