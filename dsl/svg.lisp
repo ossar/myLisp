@@ -47,3 +47,43 @@
   `(tag body ()
         ,@body))
 
+(defmacro svg (width height &body body)
+  `(tag svg (xmlns "http://www.w3.org/2000/svg"
+                   "xmlns:xlink" "http://www.w3.org/1999/xlink" height ,height width ,width)
+        ,@body))
+
+(defun brightness (col amt)
+  (mapcar (lambda (x)
+            (min 255 (max 0 (+ x amt))))
+          col))
+
+(defun svg-style (color)
+  (format nil
+          "~{fill:rgb(~a,~a,~a);stroke:rgb(~a,~a,~a)~}"
+          (append color
+                  (brightness color -100))))
+
+(defun circle (center radius color)
+  (tag circle (cx (car center)
+               cy (cdr center)
+               r radius
+               style (svg-style color))))
+
+(defun polygon (points color)
+  (tag polygon (points (format nil
+                               "~{~a,~a ~}"
+                               (mapcan (lambda (tp)
+                                         (list (car tp) (cdr tp)))
+                                       points))
+                       style (svg-style color))))
+
+(defun random-walk (value length)
+  (unless (zerop length)
+    (cons value
+          (random-walk (if (zerop (random 2))
+                         (1- value)
+                         (1+ value))
+                       (1- length)))))
+
+
+
