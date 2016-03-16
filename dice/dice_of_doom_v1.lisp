@@ -38,38 +38,38 @@
                           first-move
                           (attacking-moves board player spare-dice))))
 
-; 相手に手番を渡す
-(defun add-passing-move (board player spare-dice first-move moves)
-  (if first-move
-    moves
-    (cons (list nil
-                (game-tree (add-new-dice board player (1- spare-dice))
-                           (mod (1+ player) *num-players*)
-                           0
-                           t))
-          moves)))
-
-; 攻撃の手を計算する
-(defun attacking-moves (board cur-player spare-dice)
-  (labels ((player (pos)
-                   (car (aref board pos)))
-           (dice (pos)
-                 (cadr (aref board pos))))
-    (mapcan (lambda (src)
-              (when (eq (player src) cur-player)
-                (mapcan (lambda (dst)
-                          (when (and (not (eq (player dst) cur-player))
-                                     (> (dice src) (dice dst)))
-                            (list
-                              (list (list src dst)
-                                    (game-tree (board-attack board cur-player
-                                                             src dst (dice src))
-                                               cur-player
-                                               (+ spare-dice (dice dst))
-                                               nil)))))
-                        (neighbors src))))
-            (loop for n below *board-hexnum*
-                  collect n))))
+;; 相手に手番を渡す
+;(defun add-passing-move (board player spare-dice first-move moves)
+;  (if first-move
+;    moves
+;    (cons (list nil
+;                (game-tree (add-new-dice board player (1- spare-dice))
+;                           (mod (1+ player) *num-players*)
+;                           0
+;                           t))
+;          moves)))
+;
+;; 攻撃の手を計算する
+;(defun attacking-moves (board cur-player spare-dice)
+;  (labels ((player (pos)
+;                   (car (aref board pos)))
+;           (dice (pos)
+;                 (cadr (aref board pos))))
+;    (mapcan (lambda (src)
+;              (when (eq (player src) cur-player)
+;                (mapcan (lambda (dst)
+;                          (when (and (not (eq (player dst) cur-player))
+;                                     (> (dice src) (dice dst)))
+;                            (list
+;                              (list (list src dst)
+;                                    (game-tree (board-attack board cur-player
+;                                                             src dst (dice src))
+;                                               cur-player
+;                                               (+ spare-dice (dice dst))
+;                                               nil)))))
+;                        (neighbors src))))
+;            (loop for n below *board-hexnum*
+;                  collect n))))
 
 ; 隣接するマスを見つける
 (defun neighbors (pos)
@@ -119,12 +119,12 @@
                            (f (cdr lst) n (cons (car lst) acc))))))))
     (board-array (f (coerce board 'list) spare-dice ()))))
 
-; 人間対人間　メインループ
-(defun play-vs-human (tree)
-  (print-info tree)
-  (if (caddr tree)
-    (play-vs-human (handle-human tree))
-    (announce-winner (cadr tree))))
+;; 人間対人間　メインループ
+;(defun play-vs-human (tree)
+;  (print-info tree)
+;  (if (caddr tree)
+;    (play-vs-human (handle-human tree))
+;    (announce-winner (cadr tree))))
 
 ; ゲームの状態を表示する
 (defun print-info (tree)
@@ -132,21 +132,21 @@
   (format t "current player = ~a" (player-letter (car tree)))
   (draw-board (cadr tree)))
 
-; 人間のプレーヤーからの入力を処理する
-(defun handle-human (tree)
-  (fresh-line)
-  (princ "choose your move:")
-  (let ((moves (caddr tree)))
-    (loop for move in moves
-          for n from 1
-          do (let ((action (car move)))
-               (fresh-line)
-               (format t "~a. " n)
-               (if action
-                 (format t "~a -> ~a" (car action) (cadr action))
-                 (princ "end turn"))))
-    (fresh-line)
-    (cadr (nth (1- (read)) moves))))
+;; 人間のプレーヤーからの入力を処理する
+;(defun handle-human (tree)
+;  (fresh-line)
+;  (princ "choose your move:")
+;  (let ((moves (caddr tree)))
+;    (loop for move in moves
+;          for n from 1
+;          do (let ((action (car move)))
+;               (fresh-line)
+;               (format t "~a. " n)
+;               (if action
+;                 (format t "~a -> ~a" (car action) (cadr action))
+;                 (princ "end turn"))))
+;    (fresh-line)
+;    (cadr (nth (1- (read)) moves))))
 
 ; 勝者を決定する
 (defun winners (board)
